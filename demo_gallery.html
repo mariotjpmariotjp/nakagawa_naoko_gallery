@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>中川直子 水彩画ギャラリー（デモ）</title>
+<style>
+  :root{
+    --paper:#fbf9f4; --ink:#4a4640; --ink-soft:#8a8278; --line:#e7e1d6;
+    --sakura:#e8a6a1; --wakaba:#a9c089; --kohaku:#d9b06a; --sora:#9cc2d4; --fuji:#b9a7cf;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"Hiragino Mincho ProN","Yu Mincho",serif;background:var(--paper);color:var(--ink);line-height:1.8;-webkit-font-smoothing:antialiased}
+  .sample-bar{background:repeating-linear-gradient(45deg,#f4ede0,#f4ede0 12px,#efe6d5 12px,#efe6d5 24px);color:var(--ink-soft);text-align:center;font-size:.8rem;padding:8px 16px;letter-spacing:.05em;border-bottom:1px solid var(--line)}
+  header{text-align:center;padding:56px 24px 36px;position:relative;overflow:hidden}
+  header::before{content:"";position:absolute;inset:0;background:
+    radial-gradient(circle at 18% 30%, rgba(232,166,161,.18), transparent 38%),
+    radial-gradient(circle at 82% 24%, rgba(156,194,212,.20), transparent 40%),
+    radial-gradient(circle at 70% 78%, rgba(169,192,137,.18), transparent 42%),
+    radial-gradient(circle at 30% 82%, rgba(217,176,106,.16), transparent 40%);z-index:0}
+  header>*{position:relative;z-index:1}
+  .eyebrow{font-size:.8rem;letter-spacing:.35em;color:var(--ink-soft);text-transform:uppercase;margin-bottom:16px}
+  h1{font-size:2.1rem;font-weight:600;letter-spacing:.08em;margin-bottom:16px}
+  .lead{max-width:560px;margin:0 auto;color:var(--ink-soft)}
+  nav{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;padding:20px 16px;border-bottom:1px solid var(--line);position:sticky;top:0;background:rgba(251,249,244,.92);backdrop-filter:blur(6px);z-index:20}
+  nav a{text-decoration:none;color:var(--ink);border:1px solid var(--line);border-radius:999px;padding:8px 18px;font-size:.92rem;transition:.2s}
+  nav a:hover{background:#fff;border-color:var(--sakura);color:var(--sakura)}
+  .section-head{text-align:center;margin:56px 16px 28px}
+  .section-head .jp{font-size:1.5rem;letter-spacing:.1em}
+  .section-head .en{font-size:.72rem;letter-spacing:.3em;color:var(--ink-soft);text-transform:uppercase;margin-top:6px}
+  .section-head .bar{width:48px;height:3px;margin:14px auto 0;border-radius:3px;background:linear-gradient(90deg,var(--sakura),var(--kohaku),var(--wakaba),var(--sora))}
+  /* ソート操作 */
+  .controls{max-width:1100px;margin:0 auto 8px;padding:0 24px;display:flex;gap:20px;flex-wrap:wrap;align-items:center;justify-content:center}
+  .ctrl{display:flex;align-items:center;gap:8px;font-size:.9rem;color:var(--ink-soft)}
+  .ctrl select{font-family:inherit;font-size:.9rem;color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:999px;padding:7px 14px;cursor:pointer}
+  /* グリッド */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:34px 24px;max-width:1100px;margin:0 auto;padding:24px 24px 80px}
+  .card{cursor:pointer;transition:.25s}
+  .card:hover{transform:translateY(-4px)}
+  .thumb{aspect-ratio:4/5;border-radius:6px;overflow:hidden;box-shadow:0 4px 18px rgba(74,70,64,.08)}
+  .thumb svg{width:100%;height:100%;display:block}
+  .card h3{font-size:1.05rem;font-weight:600;margin:14px 0 4px;letter-spacing:.04em}
+  .card .meta{font-size:.84rem;color:var(--ink-soft);margin-bottom:8px}
+  .tags{display:flex;gap:6px;flex-wrap:wrap}
+  .price{display:inline-block;font-size:.78rem;letter-spacing:.04em;padding:4px 12px;border-radius:999px;background:#fff;border:1px solid var(--line)}
+  .price.p1{border-color:var(--wakaba);color:#6f8a4a}
+  .price.p2{border-color:var(--sora);color:#4f7e94}
+  .price.p3{border-color:var(--kohaku);color:#a47b2e}
+  .price.p4{border-color:var(--sakura);color:#c46a64}
+  .chip{font-size:.72rem;padding:3px 9px;border-radius:999px;background:#f2ede3;color:var(--ink-soft)}
+  /* モーダル */
+  .modal{position:fixed;inset:0;background:rgba(60,56,50,.55);display:none;align-items:center;justify-content:center;z-index:50;padding:20px}
+  .modal.open{display:flex}
+  .modal-inner{background:var(--paper);border-radius:10px;max-width:680px;width:100%;max-height:90vh;overflow:auto;padding:28px}
+  .modal-close{float:right;font-size:1.5rem;color:var(--ink-soft);cursor:pointer;line-height:1}
+  .modal h3{font-size:1.4rem;letter-spacing:.06em;margin-bottom:4px}
+  .modal .meta{color:var(--ink-soft);margin-bottom:20px}
+  .sizecompare{background:#fff;border:1px solid var(--line);border-radius:8px;padding:24px;text-align:center;margin:20px 0}
+  .sizecompare .label{font-size:.82rem;color:var(--ink-soft);margin-bottom:14px}
+  .scene{display:flex;align-items:flex-end;justify-content:center;gap:20px;height:280px}
+  .scene .person{height:260px;width:auto}
+  .scene .frame{background:linear-gradient(135deg,#f0d7c8,#e8c2b4);border:6px solid #fff;box-shadow:0 4px 14px rgba(0,0,0,.12);position:relative}
+  .scene .frame::after{content:attr(data-cm);position:absolute;bottom:-26px;left:0;right:0;font-size:.75rem;color:var(--ink-soft)}
+  .hint-box{background:#fff;border:1px solid var(--line);border-left:4px solid var(--wakaba);border-radius:6px;padding:14px 18px;margin-top:24px;font-size:.92rem}
+  .hint-box strong{color:var(--ink)}
+  /* ヒント集 */
+  .hints{max-width:920px;margin:0 auto;padding:0 24px 40px;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px}
+  .hint-card{background:#fff;border:1px solid var(--line);border-radius:8px;padding:22px;border-top:4px solid var(--sora)}
+  .hint-card:nth-child(2){border-top-color:var(--sakura)}
+  .hint-card:nth-child(3){border-top-color:var(--wakaba)}
+  .hint-card:nth-child(4){border-top-color:var(--kohaku)}
+  .hint-card:nth-child(5){border-top-color:var(--fuji)}
+  .hint-card h4{font-size:1.1rem;letter-spacing:.05em;margin-bottom:10px}
+  .hint-card p{font-size:.9rem;color:#5c574f}
+  /* 連絡 */
+  .contact{background:#fff;border-top:1px solid var(--line);text-align:center;padding:56px 24px 72px}
+  .contact h2{font-size:1.4rem;letter-spacing:.1em;margin-bottom:14px}
+  .contact p{color:var(--ink-soft);max-width:480px;margin:0 auto 26px}
+  .btn{display:inline-block;text-decoration:none;background:var(--ink);color:#fff;padding:14px 40px;border-radius:999px;font-size:1rem;letter-spacing:.08em;transition:.2s;border:none;cursor:pointer;font-family:inherit}
+  .btn:hover{background:var(--sakura)}
+  footer{text-align:center;padding:32px 16px;font-size:.8rem;color:var(--ink-soft)}
+</style>
+</head>
+<body>
+
+<div class="sample-bar">★ これは完成イメージのデモです。絵・お値段・寸法はすべて仮のものです ★</div>
+
+<header>
+  <div class="eyebrow">Naoko Nakagawa Watercolor Gallery</div>
+  <h1>中川直子　水彩画ギャラリー</h1>
+  <p class="lead">季節のうつろいを、やわらかな水の色で。<br>お部屋に合う一枚を、ゆっくりお選びください。</p>
+</header>
+
+<nav>
+  <a href="#collection">作品一覧</a>
+  <a href="#hints">飾り方のヒント</a>
+  <a href="#contact">作家へ連絡</a>
+</nav>
+
+<div class="section-head" id="collection">
+  <div class="jp">作品一覧</div>
+  <div class="en">Collection</div>
+  <div class="bar"></div>
+</div>
+
+<div class="controls">
+  <div class="ctrl"><span>並べ替え：</span>
+    <select id="sortKey">
+      <option value="default">おすすめ順</option>
+      <option value="priceAsc">お値段が安い順</option>
+      <option value="priceDesc">お値段が高い順</option>
+    </select>
+  </div>
+  <div class="ctrl"><span>お部屋：</span>
+    <select id="filterRoom">
+      <option value="all">すべて</option>
+      <option value="living">リビング</option>
+      <option value="dining">ダイニング</option>
+      <option value="bedroom">寝室</option>
+      <option value="entrance">玄関</option>
+    </select>
+  </div>
+  <div class="ctrl"><span>色あい：</span>
+    <select id="filterColor">
+      <option value="all">すべて</option>
+      <option value="warm">あたたかい色</option>
+      <option value="cool">すずしい色</option>
+      <option value="green">みどり</option>
+      <option value="soft">やわらかい色</option>
+    </select>
+  </div>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<div class="section-head" id="hints">
+  <div class="jp">飾り方のヒント</div>
+  <div class="en">Tips for Your Room</div>
+  <div class="bar"></div>
+</div>
+
+<div class="hints">
+  <div class="hint-card">
+    <h4>ダイニングには</h4>
+    <p>食卓まわりには、果実や花など暖色の作品がよく合います。会話がはずむ明るい空間に。少し小ぶり（SM〜F6）の絵を、目の高さよりやや低めに掛けると落ち着きます。</p>
+  </div>
+  <div class="hint-card">
+    <h4>寝室には</h4>
+    <p>休む場所には、青や藤色などの寒色・淡い色がおすすめ。刺激が少なく、眠りを妨げません。ベッドサイドには小品を一枚、静かに添えるくらいがちょうどよいです。</p>
+  </div>
+  <div class="hint-card">
+    <h4>リビング・玄関には</h4>
+    <p>人が集まる場所や第一印象を決める玄関には、少し大きめ（F8以上）の一枚を主役に。壁の余白を広めにとると、絵がいっそう引き立ちます。</p>
+  </div>
+  <div class="hint-card">
+    <h4>額えらびのこつ</h4>
+    <p>水彩画はやわらかい木地や白の額がよく合います。マット（絵と額の間の余白）を広めにとると、上品で美術館のような佇まいに。金色の額は華やかな作品に。</p>
+  </div>
+  <div class="hint-card">
+    <h4>色の組み合わせ</h4>
+    <p>壁が白なら、どんな色の絵もよく映えます。木目の壁には暖色、グレーの壁には寒色がなじみます。一枚飾るなら、お部屋にある小物（クッションや花瓶）と色を一つそろえると統一感が出ます。</p>
+  </div>
+</div>
+
+<div class="contact" id="contact">
+  <h2>作家へ連絡</h2>
+  <p>作品のご購入・お問い合わせは、作家・中川直子へ直接ご連絡ください。価格やサイズの詳細もこちらでご案内いたします。</p>
+  <button class="btn" id="contactBtn">お問い合わせ</button>
+</div>
+
+<footer>中川直子 水彩画ギャラリー（デモ）</footer>
+
+<!-- モーダル -->
+<div class="modal" id="modal">
+  <div class="modal-inner">
+    <span class="modal-close" id="modalClose">×</span>
+    <h3 id="mTitle"></h3>
+    <div class="meta" id="mMeta"></div>
+    <div class="thumb" id="mThumb" style="max-width:260px;margin:0 auto;border-radius:6px;overflow:hidden"></div>
+    <div class="sizecompare">
+      <div class="label">身長160cmの人と並べた大きさのめやす</div>
+      <div class="scene" id="mScene"></div>
+    </div>
+    <div class="hint-box" id="mHint"></div>
+  </div>
+</div>
+
+<script>
+  // ダミー作品データ（先生の実作品に差し替えます）
+  // price: 1=〜3万 2=3〜5万 3=5〜10万 4=10万〜
+  // wcm/hcm: 額込みのおよその寸法(cm)  room: 向く部屋  color: 色あい
+  const works = [
+    {t:"春の窓辺",   f:"F6",  wcm:41,hcm:32, p:1, room:["dining"],            color:"warm",  c:["#f3c9c5","#f7e3d4"], hint:"暖色でダイニングを明るく。白い額がよく合います。"},
+    {t:"若葉のころ", f:"F4",  wcm:33,hcm:24, p:1, room:["bedroom","living"],  color:"green", c:["#c5d9a3","#eef3df"], hint:"みどりは安らぎの色。寝室やリビングの小さな余白に。"},
+    {t:"五月の空",   f:"F8",  wcm:46,hcm:38, p:2, room:["living"],            color:"cool",  c:["#bcd7e4","#eaf2f6"], hint:"少し大きめ。リビングの主役にどうぞ。"},
+    {t:"紫陽花の庭", f:"F6",  wcm:41,hcm:32, p:2, room:["bedroom"],           color:"cool",  c:["#c8b6dd","#ece4f2"], hint:"藤色は寝室にやさしくなじみます。"},
+    {t:"夏の記憶",   f:"F10", wcm:53,hcm:46, p:3, room:["living","entrance"], color:"warm",  c:["#f0d29a","#f8eed6"], hint:"大きめの一枚。玄関の第一印象に。"},
+    {t:"水辺の午後", f:"F6",  wcm:41,hcm:32, p:2, room:["living"],            color:"cool",  c:["#a9cdd6","#e7f1f3"], hint:"すずしげな色。夏のリビングに。"},
+    {t:"野の花だより",f:"SM", wcm:27,hcm:22, p:1, room:["dining","bedroom"],  color:"soft",  c:["#eaa8a2","#f7dcd8"], hint:"小品。食卓やベッドサイドにそっと。"},
+    {t:"秋のひかり", f:"F8",  wcm:46,hcm:38, p:3, room:["living"],            color:"warm",  c:["#e0b572","#f6ead2"], hint:"あたたかい光の色。秋冬のリビングに。"},
+    {t:"静物・果実", f:"F4",  wcm:33,hcm:24, p:1, room:["dining"],            color:"warm",  c:["#d99f95","#f3ddd5"], hint:"果実の絵は食卓の定番。会話がはずみます。"},
+    {t:"冬の枝",     f:"F6",  wcm:41,hcm:32, p:2, room:["entrance"],          color:"soft",  c:["#bfc6cc","#edf0f2"], hint:"静かな色。玄関や廊下の落ち着いた一角に。"},
+    {t:"庭の片隅",   f:"F10", wcm:53,hcm:46, p:4, room:["living"],            color:"green", c:["#c3a98f","#efe6da"], hint:"存在感のある一枚。広い壁にゆとりをもって。"},
+    {t:"光の道",     f:"F12", wcm:61,hcm:50, p:4, room:["living","entrance"], color:"soft",  c:["#e8c79b","#cdd9c0"], hint:"いちばん大きな作品。主役として一枚で。"},
+  ];
+  const priceLabel = {1:"〜30,000円",2:"30,000〜50,000円",3:"50,000〜100,000円",4:"100,000円〜"};
+  const roomLabel = {living:"リビング",dining:"ダイニング",bedroom:"寝室",entrance:"玄関"};
+  const colorLabel = {warm:"あたたかい色",cool:"すずしい色",green:"みどり",soft:"やわらかい色"};
+
+  function makeArt(c){
+    return `<svg viewBox="0 0 200 250" xmlns="http://www.w3.org/2000/svg"><defs>
+      <radialGradient id="rg" cx="40%" cy="35%" r="70%"><stop offset="0%" stop-color="${c[0]}"/><stop offset="100%" stop-color="${c[1]}"/></radialGradient>
+      <filter id="bl"><feGaussianBlur stdDeviation="6"/></filter></defs>
+      <rect width="200" height="250" fill="${c[1]}"/>
+      <ellipse cx="78" cy="95" rx="70" ry="58" fill="${c[0]}" opacity=".7" filter="url(#bl)"/>
+      <ellipse cx="130" cy="150" rx="55" ry="48" fill="${c[0]}" opacity=".5" filter="url(#bl)"/>
+      <ellipse cx="95" cy="185" rx="60" ry="40" fill="${c[1]}" opacity=".6" filter="url(#bl)"/></svg>`;
+  }
+  // 身長160cm=260px の縮尺で額をpx換算
+  const PXPERCM = 260/160;
+  function personSVG(){
+    return `<svg class="person" viewBox="0 0 60 260" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="30" cy="26" r="18" fill="#c9c2b6"/>
+      <path d="M12 150 Q10 60 30 52 Q50 60 48 150 Z" fill="#c9c2b6"/>
+      <rect x="16" y="148" width="12" height="106" rx="5" fill="#c9c2b6"/>
+      <rect x="32" y="148" width="12" height="106" rx="5" fill="#c9c2b6"/></svg>`;
+  }
+
+  const grid = document.getElementById('grid');
+  function render(list){
+    grid.innerHTML='';
+    if(list.length===0){grid.innerHTML='<p style="grid-column:1/-1;text-align:center;color:var(--ink-soft)">この条件に合う作品はありません。</p>';return;}
+    list.forEach(w=>{
+      const el=document.createElement('div');el.className='card';
+      el.innerHTML=`<div class="thumb">${makeArt(w.c)}</div>
+        <h3>${w.t}</h3>
+        <div class="meta">水彩 / ${w.f}（約${w.wcm}×${w.hcm}cm）</div>
+        <div class="tags"><span class="price p${w.p}">${priceLabel[w.p]}</span>
+        ${w.room.map(r=>`<span class="chip">${roomLabel[r]}</span>`).join('')}</div>`;
+      el.addEventListener('click',()=>openModal(w));
+      grid.appendChild(el);
+    });
+  }
+  function apply(){
+    const sk=document.getElementById('sortKey').value;
+    const fr=document.getElementById('filterRoom').value;
+    const fc=document.getElementById('filterColor').value;
+    let list=works.filter(w=>(fr==='all'||w.room.includes(fr))&&(fc==='all'||w.color===fc));
+    if(sk==='priceAsc')list=[...list].sort((a,b)=>a.p-b.p);
+    if(sk==='priceDesc')list=[...list].sort((a,b)=>b.p-a.p);
+    render(list);
+  }
+  ['sortKey','filterRoom','filterColor'].forEach(id=>document.getElementById(id).addEventListener('change',apply));
+
+  // モーダル
+  const modal=document.getElementById('modal');
+  function openModal(w){
+    document.getElementById('mTitle').textContent=w.t;
+    document.getElementById('mMeta').textContent=`水彩 / ${w.f}（額込み約 ${w.wcm}×${w.hcm}cm）／ ${priceLabel[w.p]}`;
+    document.getElementById('mThumb').innerHTML=makeArt(w.c);
+    const fw=Math.round(w.wcm*PXPERCM), fh=Math.round(w.hcm*PXPERCM);
+    document.getElementById('mScene').innerHTML=
+      personSVG()+`<div class="frame" data-cm="${w.wcm}×${w.hcm}cm" style="width:${fw}px;height:${fh}px">${makeArt(w.c)}</div>`;
+    document.getElementById('mHint').innerHTML=`<strong>飾り方のヒント：</strong>${w.hint}`;
+    modal.classList.add('open');
+  }
+  document.getElementById('modalClose').addEventListener('click',()=>modal.classList.remove('open'));
+  modal.addEventListener('click',e=>{if(e.target===modal)modal.classList.remove('open')});
+
+  document.getElementById('contactBtn').addEventListener('click',()=>{
+    alert('ここに作家・中川直子先生への連絡（メール等）が入ります。\n（デモのため未設定です）');
+  });
+
+  render(works);
+</script>
+</body>
+</html>
